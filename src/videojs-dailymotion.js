@@ -42,7 +42,7 @@ class Dailymotion extends Tech {
 
     if (typeof this.videoId !== 'undefined') {
       this.setTimeout(() => {
-        this.setPoster('//api.dailymotion.com/video/' + this.videoId + '?fields=poster_url&ads=false');
+        this.getPoster(this.videoId);
       }, 100);
     }
 
@@ -112,6 +112,23 @@ class Dailymotion extends Tech {
       var match = src.match(regExp);
 
       return match ? match[5] || match[3] : null;
+    }
+  }
+
+  getPoster(id) {
+    if (id) {
+      var that = this;
+      var url = 'https://api.dailymotion.com/video/' + id + '?fields=thumbnail_large_url';
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function() { 
+          if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+            var poster = JSON.parse(xmlHttp.responseText);
+            that.setPoster(poster.thumbnail_large_url);
+          }  
+      }
+      xmlHttp.open( "GET", url, true );
+      xmlHttp.send( null );
+
     }
   }
 
@@ -334,7 +351,7 @@ Dailymotion.makeQueryString = function (args) {
 
 const injectJs = function () {
   let tag = document.createElement('script');
-  tag.src = '//api.dmcdn.net/all.js';
+  tag.src = 'https://api.dmcdn.net/all.js';
   let firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
@@ -410,7 +427,7 @@ Dailymotion.nativeSourceHandler.handleSource = function (source, tech) {
  */
 Dailymotion.nativeSourceHandler.dispose = function () {
 };
-
+ 
 // Register the native source handler
 Dailymotion.registerSourceHandler(Dailymotion.nativeSourceHandler);
 

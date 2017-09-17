@@ -156,7 +156,7 @@
           tag.onerror = function (e) {
             self.onError(e);
           };
-          tag.src = '//api.dmcdn.net/all.js';
+          tag.src = 'https://api.dmcdn.net/all.js';
           var firstScriptTag = document.getElementsByTagName('script')[0];
           firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
           videojs.Dailymotion.apiLoading = true;

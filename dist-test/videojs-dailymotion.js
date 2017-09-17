@@ -12,95 +12,10 @@ if (typeof window !== "undefined") {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],2:[function(require,module,exports){
-module.exports = require('./lib/extend');
-
-
-},{"./lib/extend":3}],3:[function(require,module,exports){
-/*!
- * node.extend
- * Copyright 2011, John Resig
- * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://jquery.org/license
- *
- * @fileoverview
- * Port of jQuery.extend that actually works on node.js
- */
-var is = require('is');
-
-function extend() {
-  var target = arguments[0] || {};
-  var i = 1;
-  var length = arguments.length;
-  var deep = false;
-  var options, name, src, copy, copy_is_array, clone;
-
-  // Handle a deep copy situation
-  if (typeof target === 'boolean') {
-    deep = target;
-    target = arguments[1] || {};
-    // skip the boolean and the target
-    i = 2;
-  }
-
-  // Handle case when target is a string or something (possible in deep copy)
-  if (typeof target !== 'object' && !is.fn(target)) {
-    target = {};
-  }
-
-  for (; i < length; i++) {
-    // Only deal with non-null/undefined values
-    options = arguments[i]
-    if (options != null) {
-      if (typeof options === 'string') {
-          options = options.split('');
-      }
-      // Extend the base object
-      for (name in options) {
-        src = target[name];
-        copy = options[name];
-
-        // Prevent never-ending loop
-        if (target === copy) {
-          continue;
-        }
-
-        // Recurse if we're merging plain objects or arrays
-        if (deep && copy && (is.hash(copy) || (copy_is_array = is.array(copy)))) {
-          if (copy_is_array) {
-            copy_is_array = false;
-            clone = src && is.array(src) ? src : [];
-          } else {
-            clone = src && is.hash(src) ? src : {};
-          }
-
-          // Never move original objects, clone them
-          target[name] = extend(deep, clone, copy);
-
-        // Don't bring in undefined values
-        } else if (typeof copy !== 'undefined') {
-          target[name] = copy;
-        }
-      }
-    }
-  }
-
-  // Return the modified object
-  return target;
-};
-
-/**
- * @public
- */
-extend.version = '1.1.3';
-
-/**
- * Exports module.
- */
-module.exports = extend;
-
-
-},{"is":4}],4:[function(require,module,exports){
 /* globals window, HTMLElement */
+
+'use strict';
+
 /**!
  * is
  * the definitive JavaScript type testing library
@@ -133,7 +48,7 @@ var hexRegex = /^[A-Fa-f0-9]+$/;
  * Expose `is`
  */
 
-var is = module.exports = {};
+var is = {};
 
 /**
  * Test general.
@@ -185,7 +100,9 @@ is.empty = function (value) {
 
   if (type === '[object Object]') {
     for (key in value) {
-      if (owns.call(value, key)) { return false; }
+      if (owns.call(value, key)) {
+        return false;
+      }
     }
     return true;
   }
@@ -233,7 +150,7 @@ is.equal = function equal(value, other) {
     if (key !== other.length) {
       return false;
     }
-    while (--key) {
+    while (key--) {
       if (!is.equal(value[key], other[key])) {
         return false;
       }
@@ -444,6 +361,17 @@ is.date = function (value) {
 };
 
 /**
+ * is.date.valid
+ * Test if `value` is a valid date.
+ *
+ * @param {Mixed} value value to test
+ * @returns {Boolean} true if `value` is a valid date, false otherwise
+ */
+is.date.valid = function (value) {
+  return is.date(value) && !isNaN(Number(value));
+};
+
+/**
  * Test element.
  */
 
@@ -495,7 +423,11 @@ is.error = function (value) {
 
 is.fn = is['function'] = function (value) {
   var isAlert = typeof window !== 'undefined' && value === window.alert;
-  return isAlert || toStr.call(value) === '[object Function]';
+  if (isAlert) {
+    return true;
+  }
+  var str = toStr.call(value);
+  return str === '[object Function]' || str === '[object GeneratorFunction]' || str === '[object AsyncFunction]';
 };
 
 /**
@@ -763,9 +695,26 @@ is.within = function (value, start, finish) {
  * @return {Boolean} true if `value` is an object, false otherwise
  * @api public
  */
-
 is.object = function (value) {
   return toStr.call(value) === '[object Object]';
+};
+
+/**
+ * is.primitive
+ * Test if `value` is a primitive.
+ *
+ * @param {Mixed} value value to test
+ * @return {Boolean} true if `value` is a primitive, false otherwise
+ * @api public
+ */
+is.primitive = function isPrimitive(value) {
+  if (!value) {
+    return true;
+  }
+  if (typeof value === 'object' || is.object(value) || is.fn(value) || is.array(value)) {
+    return false;
+  }
+  return true;
 };
 
 /**
@@ -862,7 +811,99 @@ is.symbol = function (value) {
   return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
 };
 
-},{}],5:[function(require,module,exports){
+module.exports = is;
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./lib/extend');
+
+},{"./lib/extend":4}],4:[function(require,module,exports){
+'use strict';
+
+/*!
+ * node.extend
+ * Copyright 2011, John Resig
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
+ *
+ * @fileoverview
+ * Port of jQuery.extend that actually works on node.js
+ */
+var is = require('is');
+
+var extend = function extend() {
+  var target = arguments[0] || {};
+  var i = 1;
+  var length = arguments.length;
+  var deep = false;
+  var options, name, src, copy, copyIsArray, clone;
+
+  // Handle a deep copy situation
+  if (typeof target === 'boolean') {
+    deep = target;
+    target = arguments[1] || {};
+    // skip the boolean and the target
+    i = 2;
+  }
+
+  // Handle case when target is a string or something (possible in deep copy)
+  if (typeof target !== 'object' && !is.fn(target)) {
+    target = {};
+  }
+
+  for (; i < length; i++) {
+    // Only deal with non-null/undefined values
+    options = arguments[i];
+    if (options != null) {
+      if (typeof options === 'string') {
+        options = options.split('');
+      }
+      // Extend the base object
+      for (name in options) {
+        src = target[name];
+        copy = options[name];
+
+        // Prevent never-ending loop
+        if (target === copy) {
+          continue;
+        }
+
+        // Recurse if we're merging plain objects or arrays
+        if (deep && copy && (is.hash(copy) || (copyIsArray = is.array(copy)))) {
+          if (copyIsArray) {
+            copyIsArray = false;
+            clone = src && is.array(src) ? src : [];
+          } else {
+            clone = src && is.hash(src) ? src : {};
+          }
+
+          // Never move original objects, clone them
+          target[name] = extend(deep, clone, copy);
+
+        // Don't bring in undefined values
+        } else if (typeof copy !== 'undefined') {
+          target[name] = copy;
+        }
+      }
+    }
+  }
+
+  // Return the modified object
+  return target;
+};
+
+/**
+ * @public
+ */
+extend.version = '1.1.3';
+
+/**
+ * Exports module.
+ */
+module.exports = extend;
+
+},{"is":2}],5:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -965,7 +1006,7 @@ var Dailymotion = (function (_Tech) {
 
     if (typeof this.videoId !== 'undefined') {
       this.setTimeout(function () {
-        _this.setPoster('//api.dailymotion.com/video/' + _this.videoId + '?fields=poster_url&ads=false');
+        _this.getPoster(_this.videoId);
       }, 100);
     }
 
@@ -1037,6 +1078,23 @@ var Dailymotion = (function (_Tech) {
         var match = src.match(regExp);
 
         return match ? match[5] || match[3] : null;
+      }
+    }
+  }, {
+    key: 'getPoster',
+    value: function getPoster(id) {
+      if (id) {
+        var that = this;
+        var url = 'https://api.dailymotion.com/video/' + id + '?fields=thumbnail_large_url';
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+          if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            var poster = JSON.parse(xmlHttp.responseText);
+            that.setPoster(poster.thumbnail_large_url);
+          }
+        };
+        xmlHttp.open("GET", url, true);
+        xmlHttp.send(null);
       }
     }
   }, {
@@ -1287,7 +1345,7 @@ Dailymotion.makeQueryString = function (args) {
 
 var injectJs = function injectJs() {
   var tag = document.createElement('script');
-  tag.src = '//api.dmcdn.net/all.js';
+  tag.src = 'https://api.dmcdn.net/all.js';
   var firstScriptTag = document.getElementsByTagName('script')[0];
   firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 };
@@ -1533,7 +1591,7 @@ exports['default'] = proxy;
 module.exports = exports['default'];
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"node.extend":2}],9:[function(require,module,exports){
+},{"node.extend":3}],9:[function(require,module,exports){
 (function (global){
 'use strict';
 

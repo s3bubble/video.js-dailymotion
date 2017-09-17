@@ -137,7 +137,7 @@
       if (this.player_.options().autoplay) {
         this.player_.bigPlayButton.hide();
         this.playOnReady = true;
-      }
+      } 
 
       // If we are not on a server, don't specify the origin (it will crash)
       if (window.location.protocol !== 'file:') {
@@ -157,9 +157,9 @@
         if (!videojs.Dailymotion.apiLoading) {
           var tag = document.createElement('script');
           tag.onerror = function (e) {
-            self.onError(e);
+            self.onError(e); 
           };
-          tag.src = '//api.dmcdn.net/all.js';
+          tag.src = 'https://api.dmcdn.net/all.js';
           var firstScriptTag = document.getElementsByTagName('script')[0];
           firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
           videojs.Dailymotion.apiLoading = true;
