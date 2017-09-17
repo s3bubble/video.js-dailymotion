@@ -43,14 +43,8 @@ class Dailymotion extends Tech {
     if (typeof this.videoId !== 'undefined') {
       this.setTimeout(() => {
         this.getPoster(this.videoId);
+        this.loadApi();
       }, 100);
-    }
-
-    if (Dailymotion.isApiReady) {
-      this.loadApi();
-    } else {
-      // Add to the queue because the Dailymotion API is not ready
-      Dailymotion.apiReadyQueue.push(this);
     }
 
   }
@@ -92,7 +86,10 @@ class Dailymotion extends Tech {
     return el;
   }
 
+
   loadApi() {
+
+
     this.dmPlayer = new DM.player(this.options_.techId, {
       video: this.videoId,
       width: this.options_.width,
@@ -103,6 +100,7 @@ class Dailymotion extends Tech {
     this.setupTriggers();
 
     this.dmPlayer.vjsTech = this;
+
   }
 
   parseSrc(src) {
@@ -124,7 +122,7 @@ class Dailymotion extends Tech {
           if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
             var poster = JSON.parse(xmlHttp.responseText);
             that.setPoster(poster.thumbnail_large_url);
-          }  
+          }   
       }
       xmlHttp.open( "GET", url, true );
       xmlHttp.send( null );

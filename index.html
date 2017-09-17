@@ -8,20 +8,48 @@
   <script src="dist/videojs-dailymotion.js"></script>
 </head>
 <body>
-<video class="video-js vjs-default-skin" controls width="640px" height="360px" crossorigin="anonymous"
->
-  <source src="http://www.dailymotion.com/video/xxxasl_fail-compilation-february-2013-tnl_fun" type="video/dailymotion">
-</video>
+<div id="dailymotion"></div>
 <ul>
+  <li><a href="#" class="list-group-item" id="sDaily">Service Dailymotion</a></li>
   <li><a href="/test/">Run unit tests in browser.</a></li>
 </ul>
 <!-- dailymotion sdk -->
 <script>
 
-  var player = videojs(document.querySelector('video'), {
-    language: 'fr',
-    techOrder: ['dailymotion']
-  }).toJSON();
+  var sDaily = document.getElementById("sDaily");
+  sDaily.addEventListener("click",function(e){
+    
+    // Create the player elments
+    var getPlayerDiv = document.getElementById("dailymotion");
+    video = document.createElement('video');
+    video.id = "dailymotion-player";
+    video.className = "video-js vjs-default-skin vjs-16-9";
+    video.controls = true;
+    video.muted = false;
+    video.preload = true;
+    video.addEventListener("contextmenu", function(e){
+        e.preventDefault();
+    }, false);
+    video.crossorigin = "anonymous";
+
+    // Add the video player to the container
+    getPlayerDiv.appendChild(video);
+
+    var player = videojs("dailymotion-player", {
+        techOrder: ['dailymotion'],
+        sources: [{ 
+            type: 'video/dailymotion', 
+            src: 'http://www.dailymotion.com/video/x26vdrz'
+        }]
+    }, function() {
+
+        
+    });
+
+  },false);
+
+
+  
 
 </script>
 </body>

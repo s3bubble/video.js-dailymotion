@@ -146,7 +146,7 @@
 
 
       this.el_.src = '//www.dailymotion.com/services/oembed?' + videojs.Dailymotion.makeQueryString(this.params);
-
+  
       if (videojs.Dailymotion.apiReady) {
         this.loadApi();
       } else {

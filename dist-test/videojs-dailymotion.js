@@ -1,14 +1,18 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
+var win;
+
 if (typeof window !== "undefined") {
-    module.exports = window;
+    win = window;
 } else if (typeof global !== "undefined") {
-    module.exports = global;
+    win = global;
 } else if (typeof self !== "undefined"){
-    module.exports = self;
+    win = self;
 } else {
-    module.exports = {};
+    win = {};
 }
+
+module.exports = win;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],2:[function(require,module,exports){
@@ -1007,14 +1011,8 @@ var Dailymotion = (function (_Tech) {
     if (typeof this.videoId !== 'undefined') {
       this.setTimeout(function () {
         _this.getPoster(_this.videoId);
+        _this.loadApi();
       }, 100);
-    }
-
-    if (Dailymotion.isApiReady) {
-      this.loadApi();
-    } else {
-      // Add to the queue because the Dailymotion API is not ready
-      Dailymotion.apiReadyQueue.push(this);
     }
   }
 
@@ -1058,6 +1056,7 @@ var Dailymotion = (function (_Tech) {
   }, {
     key: 'loadApi',
     value: function loadApi() {
+
       this.dmPlayer = new DM.player(this.options_.techId, {
         video: this.videoId,
         width: this.options_.width,
